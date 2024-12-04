@@ -97,7 +97,7 @@ async fn handle(mut socket: TcpStream) {
                                     }
                                 }
 
-                                _ => error!("Unable to create respons for request {:?} -> {}", request, e)
+                                _ => error!("Unable to create response for request {:?} -> {}", request, e)
                             }
                         },
                     }
