@@ -6,11 +6,12 @@ use std::io::{Error, ErrorKind};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{TcpListener, TcpStream};
 use tracing::{debug, error, info};
+use crate::request::HeaderValue;
 use crate::response::{Status, ContentType};
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    let mut debug = false;
+    let mut debug = true;
 
     let mut subscriber = tracing_subscriber::fmt()
         .with_target(true)
@@ -50,8 +51,9 @@ async fn handle(mut socket: TcpStream) {
 
     match buffer.fill_buf().await {
         Ok(buf) => {
-            match request::parse(buf) {
+            match request::Request::parse(buf) {
                 Ok(request) => {
+                    debug!("Handling request with {:?}", request);
                     let (content_type, specifier) = response::get_content_type(&request.path);
 
                     match response::create_resp(Status::Success, content_type, specifier, &request.path) {

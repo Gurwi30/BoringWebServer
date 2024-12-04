@@ -35,11 +35,6 @@ pub fn create_resp(status: Status, content_type: ContentType, content: &str, fil
     let len = contents.len();
     let mut resp = format!("HTTP/1.1 {}\r\nContent-Length: {}\r\nContent-Type: {}{}\r\nServer: BoringWebServer 0.1.0\r\n\r\n", status.get_header(), len, content_type.get_prefix(), content);
 
-    match content_type {
-        ContentType::Text => resp.push_str(String::from_utf8(contents.clone())?.as_str()),
-        _ => {},
-    }
-
     data.push(resp.as_bytes().to_vec());
 
     Ok((resp, contents))
@@ -56,6 +51,7 @@ pub fn get_content_type(file_path: &str) -> (ContentType, &str) {
                 "html" => (ContentType::Text, "html"),
                 "css" => (ContentType::Text, "css"),
                 "js" => (ContentType::Text, "javascript"),
+                "json" => (ContentType::Text, "json"),
                 "png" => (ContentType::Image, "png"),
                 "svg" => (ContentType::Image, "svg+xml"),
                 "gif" => (ContentType::Image, "gif"),
@@ -67,9 +63,3 @@ pub fn get_content_type(file_path: &str) -> (ContentType, &str) {
         None => (ContentType::Text, "plain")
     }
 }
-
-// let contents = fs::read_to_string(file_path).unwrap();
-// let len = contents.len();
-// let resp = format!("HTTP/1.1 {}\r\nContent-Length: {}\r\nContent-Type: {}\r\n\r\n{}", status.get_header(), len, file_type.get_header(), contents);
-//
-// resp
