@@ -51,8 +51,8 @@ impl Request {
         while consumed_bytes < raw_request.len() {
             match read_until_eol(&raw_request[consumed_bytes..]) {
                 Some((raw_data, length)) => {
-                    let data: String = String::from_utf8(raw_data.to_vec())?;
-                    let values: Vec<&str> = data.trim().split(":").collect();
+                    let data = std::str::from_utf8(raw_data)?;
+                    let values: Vec<&str> = data.trim().splitn(2, ":").collect();
 
                     consumed_bytes += length;
 
@@ -61,13 +61,14 @@ impl Request {
                     }
 
                     let key = values[0];
+                    let value = values[1];
 
-                    let value: HeaderValue = if values[1].contains(',') && key != "User-Agent" {
-                        let list: Vec<String> = values[1].split(',')
-                            .map(|str| str.trim().to_string())
-                            .collect();
-
-                        HeaderValue::List(list)
+                    let value: HeaderValue = if value.contains(',') && key != "User-Agent" {
+                        HeaderValue::List(
+                            value.split(',')
+                                .map(|str| str.trim().to_string())
+                                .collect()
+                        )
                     } else {
                         HeaderValue::Basic(values[1][1..].to_string())
                     };
